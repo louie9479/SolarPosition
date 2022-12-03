@@ -6,7 +6,7 @@
 // and issued under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License:
 // https://creativecommons.org/licenses/by-nc-nd/4.0/
 
-#include "SolarPosition.h"
+#include "SolarPosition_Fork.h"
 
 getExternalTime SolarPosition::getExtTimePtr = NULL; // pointer to external sync function
 
@@ -37,6 +37,7 @@ SolarPosition_t SolarPosition::getSolarPosition() {
 		pos.elevation = result.elevation * RAD_TO_DEG;
 		pos.azimuth = result.azimuth * RAD_TO_DEG;
 		pos.distance = result.distance * KM_PER_AU;
+		pos.declination = result.declination * RAD_TO_DEG;
 		pos.time = timeNow;
 		return pos;
 	} else {
@@ -52,6 +53,7 @@ SolarPosition_t SolarPosition::getSolarPosition(time_t t) {
 	pos.elevation = result.elevation * RAD_TO_DEG;
 	pos.azimuth = result.azimuth * RAD_TO_DEG;
 	pos.distance = result.distance * KM_PER_AU;
+	pos.declination = result.declination * RAD_TO_DEG;
 	pos.time = t;
 	return pos;
 }
@@ -108,6 +110,24 @@ float SolarPosition::getSolarDistance() {
 float SolarPosition::getSolarDistance(time_t t) {
 	result = calculateSolarPosition(t, Latitude, Longitude);
 	return result.distance * KM_PER_AU;
+}
+
+// Get current Declination
+//
+float SolarPosition::getSolarDeclination() {
+	if (getExtTimePtr != NULL) {
+		result = calculateSolarPosition(getExtTimePtr(), Latitude, Longitude);
+		return result.declination * RAD_TO_DEG;
+	} else {
+		return 0;
+	}
+}
+
+// Get current Declination for specified time
+//
+float SolarPosition::getSolarDeclination(time_t t) {
+	result = calculateSolarPosition(t, Latitude, Longitude);
+	return result.declination * RAD_TO_DEG;
 }
 
 //
@@ -216,6 +236,9 @@ SolarPosition_t calculateSolarPosition(time_t tParam, float Latitude,
 				+ atan2(sin(hourAngle),
 						cos(hourAngle) * sin(Latitude)
 								- tan(Declination) * cos(Latitude));
+
+		// declination
+		result.declination = Declination;
 
 		// copy the time
 		result.time = tParam;
