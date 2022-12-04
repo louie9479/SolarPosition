@@ -19,7 +19,8 @@ struct SolarPosition_t
   float elevation = 0;
   float azimuth = 0;
   float distance = 0;
-  float declination = 0;
+  float solar_noon = 0;
+  float solar_midnight = 0;
   time_t time = 0;
 };
 
@@ -59,6 +60,9 @@ class SolarPosition
     float getSolarDistance();
     float getSolarDistance(time_t t);
 
-    float getSolarDeclination();
-    float getSolarDeclination(time_t t);
+    float getSolarNoon();
+    float getSolarNoon(time_t t);
+
+    float getSolarMidnight();
+    float getSolarMidnight(time_t t);
 };

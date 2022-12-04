@@ -37,7 +37,8 @@ SolarPosition_t SolarPosition::getSolarPosition() {
 		pos.elevation = result.elevation * RAD_TO_DEG;
 		pos.azimuth = result.azimuth * RAD_TO_DEG;
 		pos.distance = result.distance * KM_PER_AU;
-		pos.declination = result.declination * RAD_TO_DEG;
+		pos.solar_noon = result.solar_noon * RAD_TO_DEG;
+		pos.solar_midnight = result.solar_midnight * RAD_TO_DEG;
 		pos.time = timeNow;
 		return pos;
 	} else {
@@ -53,7 +54,8 @@ SolarPosition_t SolarPosition::getSolarPosition(time_t t) {
 	pos.elevation = result.elevation * RAD_TO_DEG;
 	pos.azimuth = result.azimuth * RAD_TO_DEG;
 	pos.distance = result.distance * KM_PER_AU;
-	pos.declination = result.declination * RAD_TO_DEG;
+	pos.solar_noon = result.solar_noon * RAD_TO_DEG;
+	pos.solar_midnight = result.solar_midnight * RAD_TO_DEG;
 	pos.time = t;
 	return pos;
 }
@@ -112,22 +114,40 @@ float SolarPosition::getSolarDistance(time_t t) {
 	return result.distance * KM_PER_AU;
 }
 
-// Get current Declination
+// Get current Solar Noon
 //
-float SolarPosition::getSolarDeclination() {
+float SolarPosition::getSolarNoon() {
 	if (getExtTimePtr != NULL) {
 		result = calculateSolarPosition(getExtTimePtr(), Latitude, Longitude);
-		return result.declination * RAD_TO_DEG;
+		return result.solar_noon * RAD_TO_DEG;
 	} else {
 		return 0;
 	}
 }
 
-// Get current Declination for specified time
+// Get current Solar Noon for specified time
 //
-float SolarPosition::getSolarDeclination(time_t t) {
+float SolarPosition::getSolarNoon(time_t t) {
 	result = calculateSolarPosition(t, Latitude, Longitude);
-	return result.declination * RAD_TO_DEG;
+	return result.solar_noon * RAD_TO_DEG;
+}
+
+// Get current Solar Midnight
+//
+float SolarPosition::getSolarMidnight() {
+	if (getExtTimePtr != NULL) {
+		result = calculateSolarPosition(getExtTimePtr(), Latitude, Longitude);
+		return result.solar_midnight * RAD_TO_DEG;
+	} else {
+		return 0;
+	}
+}
+
+// Get current Solar Midnight for specified time
+//
+float SolarPosition::getSolarMidnight(time_t t) {
+	result = calculateSolarPosition(t, Latitude, Longitude);
+	return result.solar_midnight * RAD_TO_DEG;
 }
 
 //
@@ -237,8 +257,11 @@ SolarPosition_t calculateSolarPosition(time_t tParam, float Latitude,
 						cos(hourAngle) * sin(Latitude)
 								- tan(Declination) * cos(Latitude));
 
-		// declination
-		result.declination = Declination;
+		// solar noon
+		result.solar_noon = (PI / 2.0) - Latitude + Declination;
+
+		// solar midnight
+		result.solar_midnight = -((PI / 2.0) - Latitude - Declination);
 
 		// copy the time
 		result.time = tParam;
