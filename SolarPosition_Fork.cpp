@@ -258,10 +258,12 @@ SolarPosition_t calculateSolarPosition(time_t tParam, float Latitude,
 								- tan(Declination) * cos(Latitude));
 
 		// solar noon
-		result.solar_noon = (PI / 2.0) - Latitude + Declination;
+		result.solar_noon = (Latitude >= 0) ? (PI / 2.0) - Latitude + Declination :
+				PI - ((PI / 2.0) - Latitude + Declination);
 
 		// solar midnight
-		result.solar_midnight = -((PI / 2.0) - Latitude - Declination);
+		result.solar_midnight = (Latitude >= 0) ? (-1) * ((PI / 2.0) - Latitude - Declination) :
+				(-1) * (PI + ((-1) * ((PI / 2.0) - Latitude - Declination)));
 
 		// copy the time
 		result.time = tParam;
